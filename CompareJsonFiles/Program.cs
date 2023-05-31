@@ -1,38 +1,48 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace CompareJsonFiles
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            CompareJsonFiles();
-        }
+            var watch = Stopwatch.StartNew();
 
-        private static void CompareJsonFiles()
-        {
-            string json1 = File.ReadAllText(@"./SharedResource.Shq.json");
-            string json2 = File.ReadAllText(@"./AFK_Alb.json");
+            watch.Start();
 
-            var DeserializeObject = JsonConvert.DeserializeObject<dynamic>(json1);
-            var DeserializeObject1 = JsonConvert.DeserializeObject<dynamic>(json2);
+            string jsonString1 = File.ReadAllText(@"./SharedResource.Shq.json");
+            string jsonString2 = File.ReadAllText(@"./AFK_Alb.json");
 
-            var count = 1;
-            var sameNames = 0;
+            JObject? DObjectToEdit = JsonConvert.DeserializeObject(jsonString1) as JObject;
+            JObject? DObjectToEditFrom = JsonConvert.DeserializeObject(jsonString2) as JObject;
 
-            foreach(var data in DeserializeObject1)
+            if(DObjectToEditFrom == null || DObjectToEdit == null) 
             {
-                foreach(var data1 in DeserializeObject)
+                throw new Exception("One of the JObjets are null");
+            }
+
+            foreach (var dataToEdit in DObjectToEdit)
+            {
+
+                foreach (var dataToInsert in DObjectToEditFrom)
                 {
-                    if(data.Name == data1.Name)
+                    if (dataToEdit.Key.ToLower() == dataToInsert.Key.ToLower())
                     {
-                        Console.WriteLine(data[0].Value);
+                        if(dataToInsert.Value != null && dataToEdit.Value != null)
+                        {
+                            dataToEdit.Value.Replace(dataToInsert.Value);
+                        }
                     }
                 }
             }
 
-            Console.WriteLine(sameNames);
+            var SObject = JsonConvert.SerializeObject(DObjectToEdit, Formatting.Indented);
+
+            File.WriteAllText(@"./SharedResource.Shq.json", SObject);
+
+            watch.Stop();
         }
     }
 }
