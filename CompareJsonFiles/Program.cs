@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Diagnostics;
+using System.IO;
 
 namespace CompareJsonFiles
 {
@@ -9,40 +9,49 @@ namespace CompareJsonFiles
         static void Main(string[] args)
         {
             var watch = Stopwatch.StartNew();
-
             watch.Start();
+            Console.WriteLine("Process started...");
 
-            string jsonString1 = File.ReadAllText(@"./SharedResource.Shq.json");
-            string jsonString2 = File.ReadAllText(@"./AFK_Alb.json");
+            var DObjectToEdit = ReadAndDeserializeObject(@"./SharedResource.Shq.json");
+            var DObjectToEditFrom = ReadAndDeserializeObject(@"./AFK_En.json");
 
-            JObject? DObjectToEdit = JsonConvert.DeserializeObject(jsonString1) as JObject;
-            JObject? DObjectToEditFrom = JsonConvert.DeserializeObject(jsonString2) as JObject;
-
-            if(DObjectToEditFrom == null || DObjectToEdit == null) 
-            {
-                throw new Exception("One of the JObjets are null");
-            }
+            var wordsTranslated = 0;
 
             foreach (var dataToEdit in DObjectToEdit)
             {
+                //string word = dataToEdit.Name;
+                //if (word.Contains("_original"))
+                //{
+                //    word = word.Replace("_original", "");
+                //}
 
                 foreach (var dataToInsert in DObjectToEditFrom)
                 {
-                    if (dataToEdit.Key.ToLower() == dataToInsert.Key.ToLower())
+                    if (dataToEdit.Name.ToLower() == dataToInsert.Name.ToLower())
                     {
-                        if(dataToInsert.Value != null && dataToEdit.Value != null)
+                        if (dataToInsert.Value != null && dataToEdit.Value != null)
                         {
-                            dataToEdit.Value.Replace(dataToInsert.Value);
+                            dataToEdit.Value = dataToInsert.Value;
                         }
+                        Console.Write("\r{0} words translated", wordsTranslated);
+                        wordsTranslated++;
+                        continue;
                     }
                 }
             }
 
             var SObject = JsonConvert.SerializeObject(DObjectToEdit, Formatting.Indented);
-
             File.WriteAllText(@"./SharedResource.Shq.json", SObject);
-
             watch.Stop();
+            Console.WriteLine($"Process finished in: {watch.Elapsed}");
+        }
+
+        public static dynamic ReadAndDeserializeObject(string path)
+        {
+            string jsonString = File.ReadAllText(path);
+            var DesObject = JsonConvert.DeserializeObject<dynamic>(jsonString);
+
+            return DesObject;
         }
     }
 }
