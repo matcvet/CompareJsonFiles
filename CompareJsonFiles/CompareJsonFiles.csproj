@@ -2,13 +2,29 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Unprocessed\TestJson1.json" />
+    <None Remove="Unprocessed\TestJson2.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Unprocessed\TestJson1.json" />
+    <EmbeddedResource Include="Unprocessed\TestJson2.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Processed\" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties unprocessed_4testjson1_1json__JsonSchema="https://cdn.jsdelivr.net/npm/liblab@latest/liblab.config.schema.json" /></VisualStudio></ProjectExtensions>
 
 </Project>
